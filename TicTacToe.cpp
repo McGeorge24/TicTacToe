@@ -25,9 +25,13 @@ void printBoard (char * pBoard) {
     }
 }
 
-bool formatInput (char * pInput, char player) {    //spremeni vnos v 2 koordinati oz. konča igro, deluje
+//vnos spremeni v dve koordinati in nastavi to mesto na plošči na znak 'player'
+//upošteva velike in male črke
+//če igralec napiše exit vrne true (za konec igre)
+//če je mesto že zasedeno/ni validen ukaz pokliče funkcijo še enkrat
+bool formatInput (char * pInput, char player) {
     int x,y;
-    if (pInput[0] < 64) {       //zamenja če je črka drugi vnos
+    if ((int)pInput[1] > 63) {       //zamenja če je črka drugi vnos
         menjava(&pInput[0],&pInput[1]);
     }
     if (pInput[0]>(char)96) {
@@ -38,9 +42,7 @@ bool formatInput (char * pInput, char player) {    //spremeni vnos v 2 koordinat
     }
     y = (int) (pInput[1]) - 49; //y bi moral biti vedno številka
 
-    //zdaj bi vse vrednosti morale biti 0-2
-
-    printf("%d %d;\n", x, y);
+    //zdaj bi obe vrednosti morali biti 0-2
     //ce je izhod validen
     if ((0<=x) && (0<=y) && (x<=2) && (y<=2)) {  
         //če je mesto prosto
@@ -73,23 +75,38 @@ bool formatInput (char * pInput, char player) {    //spremeni vnos v 2 koordinat
 }
 
 char checkStatus (bool * end) {
+    //preveri ali je izenačje/ali imamo zmagovalca
     //0 - nič, t - tie, X - x zmaga, O - o zmaga 
+    //vodoravno
     for (int i = 0; i<3; i++) {
         if ((board[i][0]==board[i][1]) && (board[i][1]==board[i][2]) && (board[i][0] != ' ')) {
             *end = true;
             return board[i][0];
         }
     }
+    //navpično
     for (int i = 0; i<3; i++) {
         if ((board[0][i]==board[1][i]) && (board[1][i]==board[2][i]) && (board[0][i] != ' ')) {
             *end = true;
             return board[0][i];
         }
-    }    
+    }
+    //diagonalno 1    
+    if ((board[2][0]==board[1][1]) && (board[1][1]==board[0][2]) && (board[1][1] != ' ')) {
+            *end = true;
+            return board[2][0];
+    }
+    //diagonalno 2
+    if ((board[0][0]==board[1][1]) && (board[1][1]==board[2][2]) && (board[0][0] != ' ')) {
+            *end = true;
+            return board[0][0];
+    }
+    //izenačenje
     if (blank_spaces == 0) {    //v primeru izenačenja vrne 0;
         *end = true;
         return 't';
     }
+    //nič od naštetega
     return '0';
 }
 
@@ -120,39 +137,43 @@ int computer(int success_rate, char * pBoard, char bot) {
     return 0;
 }*/
 
-int duel () {
+void duel () {
     char input[6], zmagovalec;
-    bool running = true, konec_igre;
+    bool running = true, konec_igre, izhod = false;
     //zanka za več iger
     while (running) {
         konec_igre = false;
         clearBoard(&board[0][0]);
+        printBoard(&board[0][0]);
         //zanka za eno igro
         while (!konec_igre) {
             printf("X's move:\n");
             scanf("%s", &input); //prvi igralec
-            konec_igre = !formatInput(input, 'X'); //zapiše na ploščo in pove ali je player napisal exit...
+            izhod = konec_igre = !formatInput(input, 'X'); //zapiše na ploščo in pove ali je player napisal exit...
+            if (konec_igre) break;
             printBoard(&board[0][0]);
             zmagovalec = checkStatus(&konec_igre); //pove kdo zmaga in shrani ali je igre konec v spremenljivko...
-            
+            printf("-%c\n", zmagovalec);
             if (konec_igre) break;
 
             printf("O's move:\n");
             scanf("%s", &input);    //drugi igralec
-            konec_igre = !formatInput(input, 'O');
+            izhod = konec_igre = !formatInput(input, 'O');
+            zmagovalec = checkStatus(&konec_igre);
             printBoard(&board[0][0]);
+            printf("-%c\n", zmagovalec);
         }
         if (zmagovalec == 'X') {
             printf("X won!!!!\n");
         }
-        if (zmagovalec == 'X') {
+        if (zmagovalec == 'O') {
             printf("O won!!!!\n");
         }
-        if (zmagovalec == 'X') {
+        if (zmagovalec == 't') {
             printf("Tie! Aother one?\n");
         }
+        if (izhod) break;
     }
-    return 0;
 }
 
 int tournament () {
@@ -164,7 +185,6 @@ int tournament () {
 
 int main() {
     int game_mode;
-
     printf("Game mode (enter 1-3):\n1.\tSingleplayer (comming soon)\n2.\tDuel\n3.\tTournament (comming soon)\n");
     scanf("%d", &game_mode);
     //if (game_mode == 1) singleplayer();
@@ -172,6 +192,5 @@ int main() {
     if (game_mode == 3) tournament();
     printf ("Thanks for playing!");
     getchar();
-
     return 0;
 }
