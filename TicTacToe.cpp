@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+//test
 char board[4][4];
 int blank_spaces;
 
