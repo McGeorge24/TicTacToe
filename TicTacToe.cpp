@@ -1,8 +1,15 @@
 #include <stdio.h>
-//test123 git
+//globalne spremenljivke in objecti
 char board[4][4];
 int blank_spaces;
 
+struct tPlayer {
+    int points;
+    char name[20];
+};
+
+
+//osnovne funkcije
 void menjava(char * a, char * b) {
     char temp = *a;
     *a = *b;
@@ -56,8 +63,7 @@ bool formatInput (char * pInput, char player) {
             printf("%s is already occupied...\nChoose another spot:\t", pInput);
             char input2[6];
             scanf("%s", &input2);
-            formatInput(input2, player);
-            return true;
+            return formatInput(input2, player);
         }
     }
     //v primeru exit/Exit/esc/ESC
@@ -69,8 +75,7 @@ bool formatInput (char * pInput, char player) {
         printf("Command '%s' does not exist...\nEnter new comand here:\t", pInput);
         char input2[6];
         scanf("%s", &input2);
-        formatInput(input2, player);
-        return true;
+        return formatInput(input2, player);;
     }
 }
 
@@ -110,8 +115,12 @@ char checkStatus (bool * end) {
     return '0';
 }
 
-int executeMove(char ) {
-
+int executeMove(char * pBoard) {
+    clearBoard(pBoard);
+    char zmagovalec;
+    while (zmagovalec == '0') {
+        break;
+    }
 }
 
 int computer(int success_rate, char * pBoard, char bot) {
@@ -177,9 +186,18 @@ void duel () {
 }
 
 int tournament () {
-    int number_of_players;
-    printf("Number of players:\t");
-    scanf("%d", &number_of_players);
+    int number_of_players = 0, i;
+    while (!(number_of_players <= 8) && !(number_of_players >=3)) {
+        printf("Enter number of players (3-8):\t");
+        scanf("%d", &number_of_players);
+    }
+
+    char player[number_of_players][20];
+    for (i=0; i<number_of_players; i++) {
+        printf("Player %d name:\t", i);
+        scanf("%s", &player[i]);
+    }
+    executeMove(&board[0][0]);
     getchar();
 }
 
@@ -187,6 +205,7 @@ int main() {
     int game_mode;
     printf("Game mode (enter 1-3):\n1.\tSingleplayer (comming soon)\n2.\tDuel\n3.\tTournament (comming soon)\n");
     scanf("%d", &game_mode);
+    printf("-----------------------\n   Type exit to exit\n-----------------------\n");
     //if (game_mode == 1) singleplayer();
     if (game_mode == 2) duel();
     if (game_mode == 3) tournament();
