@@ -10,6 +10,11 @@ struct tPlayer { //za tournament
     char name[20];
 };
 
+struct tCelice {    //za minimax
+    int x,y;
+};
+tCelice prazne_celice[9];
+
 //osnovne funkcije
 void menjava(char * a, char * b) {
     char temp = *a;
@@ -18,7 +23,7 @@ void menjava(char * a, char * b) {
 }
 
 //sortiranje objectov (glede na ime)
-int playercmp(void * a, void * b) {
+int playercmp(const void * a, const void * b) {
     tPlayer * aa = (tPlayer*)a;
     tPlayer * bb = (tPlayer*)b;
     return strcmp(aa->name, bb->name);
@@ -40,38 +45,44 @@ void printBoard (char * pBoard) {
     }
 }
 
+bool validMove (int x, int y) {
+    if (board[x][y] == ' ') return true;
+    else return false;
+}
+
 //vnos spremeni v dve koordinati in nastavi to mesto na plošči na znak 'player'
 //upošteva velike in male črke
-//če igralec napiše exit vrne true (za konec igre)
+//če igralec napiše exit vrne false (za konec igre)
 //če je mesto že zasedeno/ni validen ukaz pokliče funkcijo še enkrat
-bool formatInput (char * pInput, char player) {
+bool humanMove (char player) {
+    char input[6];
     int x,y;
-    if ((int)pInput[1] > 63) {       //zamenja če je črka drugi vnos
-        menjava(&pInput[0],&pInput[1]);
+    printf("%c's move:\n", player);
+    scanf("%s", &input);
+    if ((input[1] >= 'A') && (input[0] <= '9')) {       //zamenja če je črka drugi vnos
+        menjava(&input[0],&input[1]);
     }
-    if (pInput[0]>(char)96) {
-        x = (int)(pInput[0]) - 97; //male črke a,b,c
+    if (input[0]>='a') {
+        x = (int)(input[0]) - 97; //male črke a,b,c
     }
     else {
-        x = (int)(pInput[0]) - 65; //velike črka A,B,C
+        x = (int)(input[0]) - 65; //velike črka A,B,C
     }
-    y = (int) (pInput[1]) - 49; //y bi moral biti vedno številka
+    y = (int)(input[1]) - 49; //input[1] bi moral vedno biti številka
 
     //zdaj bi obe vrednosti morali biti 0-2
     //ce je izhod validen
     if ((0<=x) && (0<=y) && (x<=2) && (y<=2)) {  
         //če je mesto prosto
-        if (board[x][y] == ' ') {
+        if (validMove(x,y)) {
             board[x][y] = player;
             blank_spaces--;
             return true;
         }
         //če je mesto že zasedeno
         else {
-            printf("%s is already occupied...\nChoose another spot:\t", pInput);
-            char input2[6];
-            scanf("%s", &input2);
-            return formatInput(input2, player);
+            printf("%s is already occupied...\nChoose another spot:\t", input);
+            return humanMove(player);
         }
     }
     //v primeru exit/Exit/esc/ESC
@@ -80,10 +91,8 @@ bool formatInput (char * pInput, char player) {
     }
     //vse ostalo
     else {
-        printf("Command '%s' does not exist...\nEnter new comand here:\t", pInput);
-        char input2[6];
-        scanf("%s", &input2);
-        return formatInput(input2, player);;
+        printf("Command '%s' does not exist...\nEnter new comand here:\t", input);
+        return humanMove(player);
     }
 }
 
@@ -123,14 +132,14 @@ char checkStatus (bool * end) {
     return '0';
 }
 
-char executeGame(char * pBoard) {
+/*char executeGame(char * pBoard) {
     clearBoard(pBoard);
     bool
     char zmagovalec = checkStatus();
     while (zmagovalec == '0') {
         
     }
-}
+}*/
 
 int computer(int success_rate, char * pBoard, char bot) {
     return 0;
@@ -166,18 +175,14 @@ void duel () {
         printBoard(&board[0][0]);
         //zanka za eno igro
         while (!konec_igre) {
-            printf("X's move:\n");
-            scanf("%s", &input); //prvi igralec
-            izhod = konec_igre = !formatInput(input, 'X'); //zapiše na ploščo in pove ali je player napisal exit...
+            izhod = konec_igre = !humanMove('X'); //zapiše na ploščo in pove ali je player napisal exit...
             if (konec_igre) break;
             printBoard(&board[0][0]);
             zmagovalec = checkStatus(&konec_igre); //pove kdo zmaga in shrani ali je igre konec v spremenljivko...
             printf("-%c\n", zmagovalec);
             if (konec_igre) break;
 
-            printf("O's move:\n");
-            scanf("%s", &input);    //drugi igralec
-            izhod = konec_igre = !formatInput(input, 'O');
+            izhod = konec_igre = !humanMove('O');
             zmagovalec = checkStatus(&konec_igre);
             printBoard(&board[0][0]);
             printf("-%c\n", zmagovalec);
@@ -217,7 +222,7 @@ int tournament () {
         player[i].points = 0;
         printf("Player %d name:\t", i);
         scanf("%[^\n]", &player[i].name);
-        gerchar(); // prebere '\n'
+        getchar(); // prebere '\n'
     }
     qsort(player, number_of_players, sizeof(tPlayer), playercmp);
 
@@ -225,7 +230,7 @@ int tournament () {
         cetrtfinale	();
     }
     polfinale();
-    finale()
+    finale();
     
     getchar();
 }
