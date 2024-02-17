@@ -1,19 +1,27 @@
-#include <stdio.h>
+#include <stdio.h>  //za printf() in scanf()
+#include <stdlib.h>  //za qsort
+#include <string.h> //za strcmp()
 //globalne spremenljivke in objecti
 char board[4][4];
 int blank_spaces;
 
-struct tPlayer {
+struct tPlayer { //za tournament
     int points;
     char name[20];
 };
-
 
 //osnovne funkcije
 void menjava(char * a, char * b) {
     char temp = *a;
     *a = *b;
     *b = temp;
+}
+
+//sortiranje objectov (glede na ime)
+int playercmp(void * a, void * b) {
+    tPlayer * aa = (tPlayer*)a;
+    tPlayer * bb = (tPlayer*)b;
+    return strcmp(aa->name, bb->name);
 }
 
 void clearBoard (char * pBoard) {
@@ -115,11 +123,12 @@ char checkStatus (bool * end) {
     return '0';
 }
 
-int executeMove(char * pBoard) {
+char executeGame(char * pBoard) {
     clearBoard(pBoard);
-    char zmagovalec;
+    bool
+    char zmagovalec = checkStatus();
     while (zmagovalec == '0') {
-        break;
+        
     }
 }
 
@@ -148,6 +157,7 @@ int computer(int success_rate, char * pBoard, char bot) {
 
 void duel () {
     char input[6], zmagovalec;
+    //izhod - izhod iz zanke iger, konec_igre - izhod iz ene igre
     bool running = true, konec_igre, izhod = false;
     //zanka za več iger
     while (running) {
@@ -174,30 +184,49 @@ void duel () {
         }
         if (zmagovalec == 'X') {
             printf("X won!!!!\n");
-        }
-        if (zmagovalec == 'O') {
+        } else if (zmagovalec == 'O') {
             printf("O won!!!!\n");
-        }
-        if (zmagovalec == 't') {
+        } else if (zmagovalec == 't') {
             printf("Tie! Aother one?\n");
         }
-        if (izhod) break;
+        if (izhod) break;   //če želi igralec zaključiti
     }
+}
+
+void finale() {
+    
+}
+
+void polfinale() {
+
+}
+
+void cetrtfinale() {
+
 }
 
 int tournament () {
     int number_of_players = 0, i;
     while (!(number_of_players <= 8) && !(number_of_players >=3)) {
-        printf("Enter number of players (3-8):\t");
+        printf("Enter number of players (3-8, currently available only 4,8):\t");
         scanf("%d", &number_of_players);
     }
+    tPlayer player[number_of_players];
 
-    char player[number_of_players][20];
-    for (i=0; i<number_of_players; i++) {
+    for (i=0; i<number_of_players; i++) {   //nastavi točke in imena
+        player[i].points = 0;
         printf("Player %d name:\t", i);
-        scanf("%s", &player[i]);
+        scanf("%[^\n]", &player[i].name);
+        gerchar(); // prebere '\n'
     }
-    executeMove(&board[0][0]);
+    qsort(player, number_of_players, sizeof(tPlayer), playercmp);
+
+    if (number_of_players>4) {
+        cetrtfinale	();
+    }
+    polfinale();
+    finale()
+    
     getchar();
 }
 
