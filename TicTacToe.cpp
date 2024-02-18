@@ -3,8 +3,7 @@
 #include <string.h> //za strcmp()
 //globalne spremenljivke in objecti
 char board[4][4], bot, human;
-int blank_spaces;
-
+int prazne; //blank_spots; globalna
 struct tPlayer { //za tournament
     int points;
     char name[20];
@@ -55,7 +54,7 @@ bool validMove (int x, int y) {
 //upošteva velike in male črke
 //če igralec napiše exit vrne false (za konec igre)
 //če je mesto že zasedeno/ni validen ukaz pokliče funkcijo še enkrat
-bool humanMove (char player) {
+bool humanMove (char player, int * blank_spots) {
     char input[6];
     int x,y;
     printf("%c's move:\n", player);
@@ -77,13 +76,13 @@ bool humanMove (char player) {
         //če je mesto prosto
         if (validMove(x,y)) {
             board[x][y] = player;
-            blank_spaces--;
+            *blank_spots--;
             return true;
         }
         //če je mesto že zasedeno
         else {
-            printf("%s is already occupied...\nChoose another spot:\t", input);
-            return humanMove(player);
+            printf("%s is already occupied...\nChoose another spot:\n", input);
+            return humanMove(player, blank_spots);
         }
     }
     //v primeru exit/Exit/esc/ESC
@@ -92,40 +91,42 @@ bool humanMove (char player) {
     }
     //vse ostalo
     else {
-        printf("Command '%s' does not exist...\nEnter new comand here:\t", input);
-        return humanMove(player);
+        printf("Command '%s' does not exist...\nEnter new comand here:\n", input);
+        return humanMove(player, blank_spots);
     }
 }
 
-char checkStatus (bool * end) {
-    //preveri ali je izenačje/ali imamo zmagovalca
-    //0 - nič, t - tie, X - x zmaga, O - o zmaga 
-    //vodoravno
+//preveri ali je izenačje/ali imamo zmagovalca
+//0 - nič, t - tie, X - x zmaga, O - o zmaga 
+//neznam drugače z 2d pointerji
+//vodoravno
+char checkStatus (bool * end, char * pBoard, int blank_spots) {
+    int s = sizeof(pBoard);
     for (int i = 0; i<3; i++) {
-        if ((board[i][0]==board[i][1]) && (board[i][1]==board[i][2]) && (board[i][0] != ' ')) {
+        if (((pBoard+i*s)[0]==(pBoard+i*s)[1]) && ((pBoard+i*s)[1]==(pBoard+i*s)[2]) && ((pBoard+i*s)[0] != ' ')) {
             *end = true;
-            return board[i][0];
+            return (pBoard+i*s)[0];
         }
     }
     //navpično
     for (int i = 0; i<3; i++) {
-        if ((board[0][i]==board[1][i]) && (board[1][i]==board[2][i]) && (board[0][i] != ' ')) {
+        if ((pBoard[i]==(pBoard+s)[i]) && ((pBoard+s)[i]==(pBoard+2*s)[i]) && (pBoard[i] != ' ')) {
             *end = true;
             return board[0][i];
         }
     }
     //diagonalno 1    
-    if ((board[2][0]==board[1][1]) && (board[1][1]==board[0][2]) && (board[1][1] != ' ')) {
+    if (((pBoard+2*s)[0]==(pBoard+s)[1]) && ((pBoard+s)[1]==pBoard[2]) && (pBoard[2] != ' ')) {
             *end = true;
-            return board[2][0];
+            return pBoard[2];
     }
     //diagonalno 2
-    if ((board[0][0]==board[1][1]) && (board[1][1]==board[2][2]) && (board[0][0] != ' ')) {
+    if ((pBoard[0]==(pBoard+s)[1]) && ((pBoard+s)[1]==(pBoard+2*s)[2]) && (pBoard[0] != ' ')) {
             *end = true;
-            return board[0][0];
+            return pBoard[0];
     }
     //izenačenje
-    if (blank_spaces == 0) {    //v primeru izenačenja vrne 0;
+    if (blank_spots == 0) {    //v primeru izenačenja vrne 0;
         *end = true;
         return 't';
     }
@@ -134,8 +135,15 @@ char checkStatus (bool * end) {
     return '0';
 }
 
-int evaluate () {
-    return 0;
+int evaluate (char * state, int depth) {
+    bool game_over;
+    if (checkStatus(&game_over, state, depth) == bot) {
+        return 1;
+    }
+    else if (checkStatus(&game_over, state, depth) == human) {
+        return -1;
+    }
+    else return 0;
 }
 
 void najdiProste(tCelice * proste_celice, char state[4][4]) {
@@ -151,48 +159,43 @@ void najdiProste(tCelice * proste_celice, char state[4][4]) {
     }
 }
 
-tMove minimax(char state[4][4], int depth, char player1, char player2) {
+tMove minimax(char state[4][4], int depth, char current_player, char other_player) {
     bool game_over;
-    tMove best;
-    if (bot == player1) {
+    tMove best, current;
+    //za primerjavo
+    if (bot == current_player) {
         best.points = -10000;
         best.x=-1; best.y=-1;
-    }
-    else {
+    } else {
         best.points = 10000;
         best.x=-1; best.y=-1;
     }
-    checkStatus(&game_over);
-    if (game_over) {
 
+    checkStatus(&game_over, &state[0][0], depth);
+    if (game_over) {    //velja tudi če je depth 0, vrne vrednost, glede na to kdo zmaga, glej evaluate()
+        best.points = evaluate(&state[0][0], depth);
+        return best;
     }
-    int i;
+
     tCelice proste_celice[depth];
     najdiProste(proste_celice, state);
-    for (i=0; i<depth; i++) {
-        state[proste_celice[i].y][proste_celice[i].x] = player1;
-        minimax(state, depth-1, player2, player1); // ju zamenjam zaradi algoritma
+    for (int i=0; i<depth; i++) {
+        state[proste_celice[i].y][proste_celice[i].x] = current_player;
+        current = minimax(state, depth-1, other_player, current_player); // ju zamenjam zaradi algoritma
         state[proste_celice[i].y][proste_celice[i].x] = ' ';
+        current.x = proste_celice[i].x;
+        current.y = proste_celice[i].y;
+        if (current_player == bot) {
+            if (current.points>best.points) best = current;
+        }
+        if (current_player == human) {
+            if (current.points<best.points) best = current;
+        }
     }
+    return best;
 }
 
-/*int singleplayer () {
-    char player, input[6];
-    bool running = true;
-
-    printf("Choose X or O (X starts):\t");
-    scanf("%c", &player); getchar();
-
-    while (running) {
-        scanf("%s", &input);
-        running = formatInput(input, &x, &y, player);   //vrne false ko napises 'exit'
-        if (checkStatus == 0) {
-            printf("tie!");
-            break;
-        }
-        computer ()
-    }
-    return 0;
+/*void singleplayer () {
 }*/
 
 void duel () {
@@ -204,17 +207,18 @@ void duel () {
         konec_igre = false;
         clearBoard(&board[0][0]);
         printBoard(&board[0][0]);
+        prazne = 9;
         //zanka za eno igro
         while (!konec_igre) {
-            izhod = konec_igre = !humanMove('X'); //zapiše na ploščo in pove ali je player napisal exit...
+            izhod = konec_igre = !humanMove('X', &prazne); //zapiše na ploščo in pove ali je player napisal exit...
             if (konec_igre) break;
             printBoard(&board[0][0]);
-            zmagovalec = checkStatus(&konec_igre); //pove kdo zmaga in shrani ali je igre konec v spremenljivko...
+            zmagovalec = checkStatus(&konec_igre, &board[0][0], prazne); //pove kdo zmaga in shrani ali je igre konec v spremenljivko...
             printf("-%c\n", zmagovalec);
             if (konec_igre) break;
 
-            izhod = konec_igre = !humanMove('O');
-            zmagovalec = checkStatus(&konec_igre);
+            izhod = konec_igre = !humanMove('O', &prazne);
+            zmagovalec = checkStatus(&konec_igre, &board[0][0], prazne);
             printBoard(&board[0][0]);
             printf("-%c\n", zmagovalec);
         }
