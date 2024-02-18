@@ -2,18 +2,19 @@
 #include <stdlib.h>  //za qsort
 #include <string.h> //za strcmp()
 //globalne spremenljivke in objecti
-char board[4][4];
+char board[4][4], bot, human;
 int blank_spaces;
 
 struct tPlayer { //za tournament
     int points;
     char name[20];
 };
-
 struct tCelice {    //za minimax
     int x,y;
 };
-tCelice prazne_celice[9];
+struct tMove {
+    int x, y, points;
+};
 
 //osnovne funkcije
 void menjava(char * a, char * b) {
@@ -129,24 +130,54 @@ char checkStatus (bool * end) {
         return 't';
     }
     //nič od naštetega
+    *end = false;
     return '0';
 }
 
-/*char executeGame(char * pBoard) {
-    clearBoard(pBoard);
-    bool
-    char zmagovalec = checkStatus();
-    while (zmagovalec == '0') {
-        
-    }
-}*/
-
-int computer(int success_rate, char * pBoard, char bot) {
+int evaluate () {
     return 0;
 }
 
+void najdiProste(tCelice * proste_celice, char state[4][4]) {
+    int y, x, i=0;
+    for (y=0;y<3;y++) {
+        for (x=0; x<10; x++) {
+            if (state[y][x] == ' '){
+                i++;
+                proste_celice[i].x = x;
+                proste_celice[i].y = y;
+            }
+        }
+    }
+}
+
+tMove minimax(char state[4][4], int depth, char player1, char player2) {
+    bool game_over;
+    tMove best;
+    if (bot == player1) {
+        best.points = -10000;
+        best.x=-1; best.y=-1;
+    }
+    else {
+        best.points = 10000;
+        best.x=-1; best.y=-1;
+    }
+    checkStatus(&game_over);
+    if (game_over) {
+
+    }
+    int i;
+    tCelice proste_celice[depth];
+    najdiProste(proste_celice, state);
+    for (i=0; i<depth; i++) {
+        state[proste_celice[i].y][proste_celice[i].x] = player1;
+        minimax(state, depth-1, player2, player1); // ju zamenjam zaradi algoritma
+        state[proste_celice[i].y][proste_celice[i].x] = ' ';
+    }
+}
+
 /*int singleplayer () {
-    char player, bot, input[6];
+    char player, input[6];
     bool running = true;
 
     printf("Choose X or O (X starts):\t");
