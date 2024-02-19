@@ -29,6 +29,14 @@ int playercmp(const void * a, const void * b) {
     return strcmp(aa->name, bb->name);
 }
 
+char uppercase(char * pHuman) {
+    if ((*pHuman == 'O') || (*pHuman == 'o')) {
+        *pHuman == 'O';
+        return 'X';
+    }
+    else return 'O';
+}
+
 void clearBoard (char * pBoard) {
     int i, j;
     for (i=0; i<3; i++) {
@@ -39,9 +47,9 @@ void clearBoard (char * pBoard) {
 }
 
 void printBoard (char * pBoard) {
-    printf(" | 1 | 2 | 3\n-+---+---+---\n");
+    printf(" | 1 | 2 | 3\n");
     for (int i=0; i<3; i++) {
-        printf("%c| %c | %c | %c\n-+---+---+---\n", (char)(65+i), (pBoard+i*sizeof(pBoard))[0], (pBoard+i*sizeof(pBoard))[1], (pBoard+i*sizeof(pBoard))[2]);   //65 + 0 je index znaka 'A'
+        printf("-+---+---+---\n%c| %c | %c | %c\n", (char)(65+i), (pBoard+i*sizeof(pBoard))[0], (pBoard+i*sizeof(pBoard))[1], (pBoard+i*sizeof(pBoard))[2]);   //65 + 0 je index znaka 'A'
     }
 }
 
@@ -77,7 +85,7 @@ bool humanMove (char player) {
         if (validMove(x,y)) {
             board[x][y] = player;
             prazne--;
-            return true;
+            return false;
         }
         //če je mesto že zasedeno
         else {
@@ -87,7 +95,7 @@ bool humanMove (char player) {
     }
     //v primeru exit/Exit/esc/ESC
     if (x==4) {        
-        return false;
+        return true;
     }
     //vse ostalo
     else {
@@ -148,7 +156,7 @@ int evaluate (char * state, int depth) {
 
 void najdiProste(tCelice * proste_celice, char state[4][4]) {
     int y, x, i=0;
-    for (y=0;y<3;y++) {
+    for (y=0; y<3; y++) {
         for (x=0; x<3; x++) {
             if (state[y][x] == ' '){
                 (proste_celice+i)->x = x;
@@ -199,58 +207,77 @@ tMove minimax(char state[4][4], int depth, char * current_player, char * other_p
 }
 
 void singleplayer () {
-    bool game_over = false;
+    bool game_over = false, running = true;
+    char zmagovalec;
     tMove computer;
+
     getchar();
-    printf("Choose X or O (now working X only):\t");
-    scanf("%c", &human);
-    if (human == 'O') bot = 'X';
-    else bot = 'O';
-    prazne = 9;
-    clearBoard(board[0]);
-    printBoard(board[0]);
-    while (!game_over) {
-        if (!humanMove(human)) break;
-        computer = minimax(board, prazne, &bot, &human);
-        prazne--;
-        printf("%d %d\n", computer.y, computer.x);
-        board[computer.y][computer.x] = bot;
+    while (running) {        
+        printf("Choose X or O (X starts):\t");
+        scanf("%c", &human);
+        getchar();
+        bot = uppercase(&human);
+        prazne = 9;
+        clearBoard(board[0]);
+        if (bot == 'O') {
         printBoard(board[0]);
+            while (true) {
+                running = !humanMove(human);
+                zmagovalec = checkStatus(&game_over, board[0], prazne); 
+                if (game_over || !running) break;
+                printf("prazne: %d\n", prazne);
+
+                computer = minimax(board, prazne, &bot, &human);
+                prazne--;
+                board[computer.y][computer.x] = bot;
+                zmagovalec = checkStatus(&game_over, board[0], prazne);
+                printBoard(board[0]);
+                if (game_over || !running) break;
+            }
+        }
+        else {
+            while (true) {
+                computer = minimax(board, prazne, &bot, &human);
+                prazne--;
+                board[computer.y][computer.x] = bot;
+                zmagovalec = checkStatus(&game_over, board[0], prazne);
+                printBoard(board[0]);
+                if (game_over || !running) break;
+
+                running = !humanMove(human);
+                zmagovalec = checkStatus(&game_over, board[0], prazne); 
+                if (game_over || !running) break;
+            }
+        }
+        if (zmagovalec == human) printf("You won!!!!\n");
+        else if (zmagovalec == bot) printf("You lost!\n");
+        else if (zmagovalec == 't') printf("Tie! Aother one?\n");
+        getchar();  getchar();
     }
 }
 
 void duel () {
     char input[6], zmagovalec;
-    //izhod - izhod iz zanke iger, game_over - izhod iz ene igre
-    bool running = true, game_over, izhod = false;
-    //zanka za več iger
+    //runing - izhod iz zanke iger, game_over - izhod iz ene igre
+    bool running = true, game_over;
     while (running) {
-        game_over = false;
-        clearBoard(&board[0][0]);
-        printBoard(&board[0][0]);
+        clearBoard(board[0]);
+        printBoard(board[0]);
         prazne = 9;
-        //zanka za eno igro
-        while (!game_over) {
-            izhod = game_over = !humanMove('X'); //zapiše na ploščo in pove ali je player napisal exit...
-            if (game_over) break;
-            printBoard(&board[0][0]);
-            zmagovalec = checkStatus(&game_over, &board[0][0], prazne); //pove kdo zmaga in shrani ali je igre konec v spremenljivko...
-            printf("-%c\n", zmagovalec);
-            if (game_over) break;
+        while (true) {
+            running = !humanMove('X'); 
+            zmagovalec = checkStatus(&game_over, board[0], prazne); 
+            printBoard(board[0]);
+            if (game_over || !running) break;
 
-            izhod = game_over = !humanMove('O');
-            zmagovalec = checkStatus(&game_over, &board[0][0], prazne);
-            printBoard(&board[0][0]);
-            printf("-%c\n", zmagovalec);
+            running = !humanMove('O');
+            zmagovalec = checkStatus(&game_over, board[0], prazne);
+            printBoard(board[0]);
+            if (game_over || !running) break;
         }
-        if (zmagovalec == 'X') {
-            printf("X won!!!!\n");
-        } else if (zmagovalec == 'O') {
-            printf("O won!!!!\n");
-        } else if (zmagovalec == 't') {
-            printf("Tie! Aother one?\n");
-        }
-        if (izhod) break;   //če želi igralec zaključiti
+        if (zmagovalec == 'X') printf("X won!!!!\n");
+        else if (zmagovalec == 'O') printf("O won!!!!\n");
+        else if (zmagovalec == 't') printf("Tie! Aother one?\n");
     }
 }
 
@@ -266,7 +293,7 @@ void cetrtfinale() {
 
 }
 
-int tournament () {
+void tournament () {
     int number_of_players = 0, i;
     while (!(number_of_players <= 8) && !(number_of_players >=3)) {
         printf("Enter number of players (3-8, currently available only 4,8):\t");
