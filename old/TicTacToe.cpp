@@ -1,17 +1,21 @@
-#include <stdio.h>  //za printf() in scanf()
+#include <stdio.h>  //za printf() in scanf(), te knjižnice so shranjene v mapi compilerja
 #include <stdlib.h>  //za qsort
 #include <string.h> //za strcmp()
-//globalne spremenljivke in objecti
+
+//globalne spremenljivke
 char board[4][4], bot, human;
 int prazne; //blank_spots, samo globalna
-struct tPlayer { //za tournament
+
+struct tPlayer { //za tournament (seznam igralcev z imenom in točkami)
     int points;
     char name[20];
 };
-struct tCelice {    //za minimax
+
+struct tCelice {    //za minimax (seznam praznih celic z koordinatami)
     int x,y;
 };
-struct tMove {      //za minimax
+
+struct tMove {      //za minimax (da lahko vrne 3 vrednosti)
     int x, y, points;
 };
 
@@ -22,7 +26,7 @@ void menjava(char * a, char * b) {
     *b = temp;
 }
 
-//sortiranje objectov (glede na ime)
+//sortiranje objectov (glede na ime), še pride
 int playercmp(const void * a, const void * b) {
     tPlayer * aa = (tPlayer*)a;
     tPlayer * bb = (tPlayer*)b;
@@ -77,8 +81,8 @@ bool humanMove (char player) {
         x = (int)(input[0]) - 65; //velike črka A,B,C
     }
     y = (int)(input[1]) - 49; //input[1] bi moral vedno biti številka
-
     //zdaj bi obe vrednosti morali biti 0-2
+
     //ce je izhod validen
     if ((0<=x) && (0<=y) && (x<=2) && (y<=2)) {  
         //če je mesto prosto
@@ -93,7 +97,7 @@ bool humanMove (char player) {
             return humanMove(player);
         }
     }
-    //v primeru exit/Exit/esc/ESC
+    //v primeru exit/Exit/esc/ESC (E je peta črka - začne se z 0)
     if (x==4) {        
         return true;
     }
@@ -106,7 +110,7 @@ bool humanMove (char player) {
 
 //preveri ali je izenačje/ali imamo zmagovalca
 //0 - nič, t - tie, X - x zmaga, O - o zmaga 
-//neznam drugače z 2d pointerji
+//neznam drugače z pointerji za 2d sezname
 //vodoravno
 char checkStatus (bool * end, char * pBoard, int blank_spots) {
     int s = sizeof(pBoard);
@@ -206,7 +210,9 @@ tMove minimax(char state[4][4], int depth, char * current_player, char * other_p
     return best;
 }
 
-void singleplayer () {
+//vrne 0 - če zmaga bot, 1 - če zmaga igralec
+//to je pomembno za funkcijo finale
+int singleplayer () {
     bool game_over = false, running = true;
     char zmagovalec;
     tMove computer;
@@ -249,7 +255,11 @@ void singleplayer () {
                 if (game_over || !running) break;
             }
         }
-        if (zmagovalec == human) printf("You won!!!!\n");
+        if (zmagovalec == human) 
+        {
+            printf("You won!!!!\n");
+            return 1;
+        }
         else if (zmagovalec == bot) printf("You lost!\n");
         else if (zmagovalec == 't') printf("Tie! Aother one?\n");
         getchar();  getchar();
@@ -282,7 +292,7 @@ void duel () {
 }
 
 void finale() {
-    
+
 }
 
 void polfinale() {
@@ -320,12 +330,11 @@ void tournament () {
 
 int main() {
     int game_mode;
-    printf("Game mode (enter 1-3):\n1.\tSingleplayer (BETA)\n2.\tDuel\n3.\tTournament (comming soon)\n");
+    printf("Game mode (enter 1-3):\n1.\tSingleplayer (BETA)\n2.\tDuel\n");
     scanf("%d", &game_mode);
     printf("-----------------------\n   Type exit to exit\n-----------------------\n");
     if (game_mode == 1) singleplayer();
     if (game_mode == 2) duel();
-    if (game_mode == 3) tournament();
     printf ("Thanks for playing!");
     getchar();
     return 0;
