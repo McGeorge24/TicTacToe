@@ -82,9 +82,10 @@ void duel (char ** board)
             printBoard(board);
             if (game_over) break;
         }
-        
-        if (zmagovalec == 'X') printf("X won!!!!\n");
-        else if (zmagovalec == 'O') printf("O won!!!!\n");
+
+        if (zmagovalec == 'X') printf("-------------\n  X won!!!!\n-------------\n");
+        else if (zmagovalec == 'O') printf("-------------\n  O won!!!!\n-------------\n");
         else if (zmagovalec == 't') printf("Tie! Aother one?\n");
+        getchar(); getchar();
     }
 }

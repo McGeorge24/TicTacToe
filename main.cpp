@@ -6,7 +6,7 @@ int main() {
     int game_mode;
     char ** board = InitBoard(3,3);
 
-    printf("Game mode (enter 1/2):\n1.\tSingleplayer (BETA)\n2.\tDuel\n");
+    printf("Game mode (enter 1/2):\n1.\tSingleplayer\n2.\tDuel\n");
     scanf("%d", &game_mode);
     printf("-----------------------\n   Type exit to exit\n-----------------------\n");
     if (game_mode == 1) singleplayer(board);

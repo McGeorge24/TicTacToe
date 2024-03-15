@@ -13,8 +13,8 @@ void playerMove (char player, int * proste_celice, char ** board)
     printf("%c's move:\n", player);
     scanf("%s", input);
 
-    //if(strcmp(input, "exit") == 0)
-    //  exit(0);
+    if(strcmp(input, "exit") == 0)
+      exit(0);
     
     //zamenja če je črka drugi vnos
     if ((input[1] >= 'A') && (input[0] <= '9')) {
