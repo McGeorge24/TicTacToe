@@ -15,6 +15,8 @@ void playerMove (char player, int * proste_celice, char ** board)
 
     if(strcmp(input, "exit") == 0)
     {
+        printf("Thanks for playing!\n");
+        getchar();
         Delete(board, 3);
         exit(0);
     }
