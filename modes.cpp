@@ -3,18 +3,14 @@
 #include "include/execution_functions.h"
 
 void singleplayer (char ** board) {
-    bool game_over = false, running = true;
+    bool game_over = false;
     char zmagovalec, human, bot;
     int proste_celice;
     tMove computer;
 
     getchar();
-    while (running) {        
-        printf("Choose X or O (X starts):\t");
-        scanf("%c", &human);
-        getchar();
-
-        definePlayers(&human, &bot);
+    while (true) {        
+        definePlayers(&human, &bot, board);
         proste_celice = 9;
         clearBoard(board);
 
@@ -22,7 +18,8 @@ void singleplayer (char ** board) {
         {
             printBoard(board);
             while (true) {
-                playerMove(human, &proste_celice, board);
+                playerMove(human, board);
+                proste_celice--;
                 zmagovalec = checkStatus(&game_over, board, proste_celice); 
                 if (game_over) break;
                 
@@ -43,7 +40,8 @@ void singleplayer (char ** board) {
                 printBoard(board);
                 if (game_over) break;
 
-                playerMove(human, &proste_celice, board);
+                playerMove(human, board);
+                proste_celice--;
                 zmagovalec = checkStatus(&game_over, board, proste_celice); 
                 if (game_over) break;
             }
@@ -53,7 +51,7 @@ void singleplayer (char ** board) {
         else if (zmagovalec == bot) 
             printf("-------------\n  You lost!\n-------------\n");
         else if (zmagovalec == 't') 
-            printf("Tie! Aother one?\n");
+            printf("Tie! Another one?\n");
         printf("Press enter to continue ...");
         getchar();  getchar();
     }
@@ -65,20 +63,22 @@ void duel (char ** board)
     char input[6], zmagovalec, human, bot;
     int proste_celice;
     //runing - izhod iz zanke iger, game_over - izhod iz ene igre
-    bool running = true, game_over;
+    bool game_over = false;
 
-    while (running) {
+    while (true) {
         clearBoard(board);
         printBoard(board);
         proste_celice = 9;
 
         while (true) {
-            playerMove('X', &proste_celice, board);
+            playerMove('X', board);
+            proste_celice--;
             zmagovalec = checkStatus(&game_over, board, proste_celice); 
             printBoard(board);
             if (game_over) break;
 
-            playerMove('O', &proste_celice, board);
+            playerMove('O', board);
+            proste_celice--;
             zmagovalec = checkStatus(&game_over, board, proste_celice); 
             printBoard(board);
             if (game_over) break;
@@ -86,7 +86,7 @@ void duel (char ** board)
 
         if (zmagovalec == 'X') printf("-------------\n  X won!!!!\n-------------\n");
         else if (zmagovalec == 'O') printf("-------------\n  O won!!!!\n-------------\n");
-        else if (zmagovalec == 't') printf("Tie! Aother one?\n");
+        else if (zmagovalec == 't') printf("Tie! Another one?\n");
         printf("Press enter to continue ...");
         getchar(); getchar();
     }

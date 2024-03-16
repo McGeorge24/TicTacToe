@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 void menjava(char * a, char * b) {
     char temp = *a;
@@ -23,12 +25,30 @@ void Delete (char ** board, int size) {
 	delete[] board;
 }
 
-void definePlayers(char * pHuman, char * pBot) {
-    if ((*pHuman == 'O') || (*pHuman == 'o')) {
-        *pHuman = 'O';
-        *pBot = 'X';
+void Exit (char * input, char ** pBoard) {
+    if (strcmp(input, "exit") == 0) {
+        Delete(pBoard, 3);
+        exit(0);
     }
-    else *pBot ='O';
+}
+
+void definePlayers(char * human, char * bot, char ** pBoard) {
+    char input[6];
+    printf("Choose X or O (X starts):\t");
+    scanf(" %s", input);
+
+    Exit (input, pBoard);
+    if (input[0] < '!') 
+        definePlayers(human, bot, pBoard);
+    
+    else if ((input[0] == 'O') || (input[0] == 'o')) {
+        *human = 'O';
+        *bot = 'X';
+    }
+    else {
+        *bot ='O';
+        *human = input[0];
+    }
 }
 
 void clearBoard (char ** pBoard) {

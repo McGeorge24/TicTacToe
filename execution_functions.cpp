@@ -1,11 +1,9 @@
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include "include/core_functions.h"
 #include "include/objects.h"
 
 
-void playerMove (char player, int * proste_celice, char ** board) 
+void playerMove (char player, char ** board) 
 {
     char input[6];
     int x,y;
@@ -13,13 +11,7 @@ void playerMove (char player, int * proste_celice, char ** board)
     printf("%c's move:\n", player);
     scanf("%s", input);
 
-    if(strcmp(input, "exit") == 0)
-    {
-        printf("Thanks for playing!\n");
-        getchar();
-        Delete(board, 3);
-        exit(0);
-    }
+    Exit(input, board);
     
     //zamenja če je črka drugi vnos
     if ((input[1] >= 'A') && (input[0] <= '9')) {
@@ -46,20 +38,19 @@ void playerMove (char player, int * proste_celice, char ** board)
         //če je mesto prosto
         if (validMove(x, y, board)) {
             board[x][y] = player;
-            (*proste_celice) --;
         }
 
         //če je mesto že zasedeno
         else {
             printf("%s is already occupied...\nChoose another spot:\n", input);
-            playerMove(player, proste_celice, board);
+            playerMove(player, board);
         }
     }
 
     //vse ostalo
     else {
         printf("Command '%s' does not exist...\nEnter new comand here:\n", input);
-        playerMove(player, proste_celice, board);
+        playerMove(player, board);
     }
 }
 
@@ -128,7 +119,7 @@ void najdiProste (tCelice * proste_celice, char ** state) {
 tMove minimax(char ** state, int depth, int prostih, char * current_player, char * other_player, char bot, char human) {
     bool game_over;
     tMove best, current;
-    //printf("zacetek\n");
+
     if (bot == *current_player) {    //za kasnejšo primerjavo
         best.points = -1000000;
         best.x=-1; best.y=-1;
@@ -145,12 +136,8 @@ tMove minimax(char ** state, int depth, int prostih, char * current_player, char
 
     tCelice proste_celice[9];
     najdiProste(proste_celice, state);
-    //printBoard(state);
+
     for (int i=0; i<depth; i++) {
-        /*printf("%d\n", depth);
-        for (int j = 0; j<depth; j++) {
-            printf("-%d %d \n", proste_celice[j].y, proste_celice[j].x);
-        }*/
  
         state[proste_celice[i].y][proste_celice[i].x] = *current_player;
         current = minimax(state, depth-1, prostih-1, other_player, current_player, bot, human); // ju zamenjam zaradi algoritma
@@ -165,7 +152,7 @@ tMove minimax(char ** state, int depth, int prostih, char * current_player, char
         else {
             if (current.points < best.points) best = current;
         }
-        //printf("-------\n");
+
     }
     return best;
 }

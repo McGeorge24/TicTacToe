@@ -1,7 +1,7 @@
 #pragma once
 #include "objects.h"
 
-void playerMove (char player, int * proste_celice, char ** board);
+void playerMove (char player, char ** board);
 char checkStatus (bool * end, char ** pBoard, int proste_celice);
 
 int evaluate (char ** state, int depth, int proste_celice, char bot, char human);
