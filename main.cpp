@@ -11,10 +11,8 @@ int main() {
     printf("-----------------------\n   Type exit to exit\n-----------------------\n");
     if (game_mode == 1) singleplayer(board);
     if (game_mode == 2) duel(board);
-    printf ("Thanks for playing!");
     getchar();
 
-    Delete(board, 3);
     return 0;
 }
 // g++ core_functions.cpp execution_functions.cpp modes.cpp main.cpp -o program

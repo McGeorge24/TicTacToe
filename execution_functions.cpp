@@ -14,7 +14,10 @@ void playerMove (char player, int * proste_celice, char ** board)
     scanf("%s", input);
 
     if(strcmp(input, "exit") == 0)
-      exit(0);
+    {
+        Delete(board, 3);
+        exit(0);
+    }
     
     //zamenja če je črka drugi vnos
     if ((input[1] >= 'A') && (input[0] <= '9')) {
