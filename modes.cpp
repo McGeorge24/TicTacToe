@@ -48,12 +48,13 @@ void singleplayer (char ** board) {
                 if (game_over) break;
             }
         }
-        if (zmagovalec == human) 
-        {
-            printf("You won!!!!\n");
-        }
-        else if (zmagovalec == bot) printf("You lost!\n");
-        else if (zmagovalec == 't') printf("Tie! Aother one?\n");
+        if (zmagovalec == human)
+            printf("---------------\n  You won!!!!\n---------------\n");
+        else if (zmagovalec == bot) 
+            printf("-------------\n  You lost!\n-------------\n");
+        else if (zmagovalec == 't') 
+            printf("Tie! Aother one?\n");
+        printf("Press enter to continue ...");
         getchar();  getchar();
     }
 }
@@ -86,6 +87,7 @@ void duel (char ** board)
         if (zmagovalec == 'X') printf("-------------\n  X won!!!!\n-------------\n");
         else if (zmagovalec == 'O') printf("-------------\n  O won!!!!\n-------------\n");
         else if (zmagovalec == 't') printf("Tie! Aother one?\n");
+        printf("Press enter to continue ...");
         getchar(); getchar();
     }
 }

@@ -15,4 +15,5 @@ int main() {
 
     return 0;
 }
+// compiling command:
 // g++ core_functions.cpp execution_functions.cpp modes.cpp main.cpp -o program
