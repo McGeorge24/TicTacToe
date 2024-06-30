@@ -1,0 +1,8 @@
+# compiled binaries
+*.exe
+
+# stop including project old
+project old/
+
+# vs code stuff
+.vscode/
